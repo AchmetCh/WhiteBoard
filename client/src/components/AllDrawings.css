@@ -1,0 +1,41 @@
+.drawings-container {
+    padding: 20px;
+  }
+  
+  .drawings-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .drawing-block {
+    display: block;
+    width: 150px;
+    height: 150px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    text-decoration: none;
+    color: black;
+    position: relative;
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+  }
+  
+  .drawing-block:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .drawing-title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
