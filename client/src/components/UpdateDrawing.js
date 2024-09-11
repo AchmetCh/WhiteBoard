@@ -44,9 +44,9 @@ const UpdateDrawing = () => {
         shapes,
         textAnnotations
       };
-      await axios.put(`/updatedrawing/${id}`, updatedData);
+      await axios.put(`http://localhost:8000/api/updatedrawing/${id}`, updatedData);
       alert('Drawing updated successfully!');
-      navigate('/alldrawings'); // Redirect to the all drawings page after updating
+      navigate('/'); // Redirect to the all drawings page after updating
     } catch (error) {
       console.error('Error updating drawing:', error);
       alert('Failed to update the drawing.');

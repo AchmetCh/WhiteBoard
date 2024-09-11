@@ -40,34 +40,34 @@ const DrawingBoard = () => {
   // Function to save the drawing
   const saveDrawing = async () => {
     const drawingData = JSON.parse(canvasRef.current.getSaveData()); // Get the serialized drawing data
-
+  
     // Transform canvas drawing data into the format expected by the backend
     const lines = drawingData.lines.map((line) => ({
       x1: line.points[0].x,
       y1: line.points[0].y,
       x2: line.points[1].x,
       y2: line.points[1].y,
-      color: line.brushColor,
+      color: 'black',
       thickness: line.brushRadius,
     }));
-
+  
     const drawing = {
       title,
       lines,          
       shapes,         
       textAnnotations, 
     };
-
+  
     try {
-      // Send the drawing data to the backend
       await axios.post('http://localhost:8000/api/newdraw', drawing);
       alert('Drawing saved successfully!');
-      navigate('/')
+      navigate('/');
     } catch (error) {
       console.error('Error saving the drawing:', error);
       alert('Failed to save the drawing.');
     }
   };
+  
 
   return (
     <div>
@@ -82,7 +82,9 @@ const DrawingBoard = () => {
       />
 
       {/* CanvasDraw component */}
-      <CanvasDraw ref={canvasRef} />
+      <CanvasDraw ref={canvasRef}   enablePanAndZoom
+          clampLinesToDocument
+          gridColor="#ccc" />
 
       {/* Buttons to add shapes */}
       <div>
