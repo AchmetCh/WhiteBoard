@@ -4,22 +4,31 @@ import { useParams } from 'react-router-dom';
 import CanvasDraw from 'react-canvas-draw';
 
 const DrawingDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Getting the drawing ID from URL
   const [drawing, setDrawing] = useState(null);
   const canvasRef = useRef(null);
 
   useEffect(() => {
     axios.get(`http://localhost:8000/api/getdrawing/${id}`)
       .then(response => {
-        console.log('Drawing Data:', response.data);
-        setDrawing(response.data);
+        setDrawing(response.data); // Set drawing data from the response
       })
       .catch(error => console.error('Error fetching drawing:', error));
   }, [id]);
 
   useEffect(() => {
-    if (drawing && drawing.drawingData) {
-      canvasRef.current.loadSaveData(drawing.drawingData);  // Load saved drawing data
+    if (drawing && drawing.lines) {
+      canvasRef.current.loadSaveData(
+        JSON.stringify({
+          lines: drawing.lines.map((line) => ({
+            points: line.points,
+            brushColor: line.color,
+            brushRadius: line.brushRadius,
+          })),
+          width: window.innerWidth,
+          height: window.innerWidth,
+        })
+      );
     }
   }, [drawing]);
 
@@ -30,11 +39,12 @@ const DrawingDetail = () => {
   return (
     <div>
       <h1>{drawing.title}</h1>
-      <div style={{ width: '100%', height: '80vh' }}>
-        <CanvasDraw ref={canvasRef} canvasWidth={800} canvasHeight={600} />
+      <div>
+        <CanvasDraw ref={canvasRef}  canvasWidth={window.innerWidth} canvasHeight={window.innerWidth} />
       </div>
     </div>
   );
 };
 
 export default DrawingDetail;
+

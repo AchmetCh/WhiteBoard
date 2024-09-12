@@ -1,79 +1,66 @@
-import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import CanvasDraw from 'react-canvas-draw';
-import axios from 'axios';
+import React, { useState, useRef,createRef, useEffect  } from "react";
+import { useNavigate } from "react-router-dom";
+import CanvasDraw from "react-canvas-draw";
+import axios from "axios";
+import '../App.css'
 
 const DrawingBoard = () => {
-  const canvasRef = useRef(null);
-  const [title, setTitle] = useState(''); // To store the title of the drawing
-  const [shapes, setShapes] = useState([]); // State to store shapes
-  const [textAnnotations, setTextAnnotations] = useState([]); // State to store text annotations
+  const [color, setColor] = useState("#ffc600");
+  const [width, setWidth] = useState(window.innerWidth);
+  const [height, setHeight] = useState(window.innerHeight);
+  const [brushRadius, setBrushRadius] = useState(10);
+  const [lazyRadius, setLazyRadius] = useState(12);
+  const [title, setTitle] = useState(""); // For storing the title
+  const [drawingId, setDrawingId] = useState(null); // To track the current drawing ID (for loading purposes)
 
-  const navigate = useNavigate()
+  const saveableCanvas = createRef(null);
+  const loadableCanvas = createRef(null);
+  const navigate = useNavigate();
 
-  // Function to add a shape
-  const addShape = (type) => {
-    const newShape = {
-      type,
-      startX: 50, // Default starting position
-      startY: 50,
-      width: type === 'rectangle' ? 100 : undefined, // For rectangle
-      height: type === 'rectangle' ? 50 : undefined, // For rectangle
-      radius: type === 'circle' ? 30 : undefined, // For circle
-      color: 'blue', // Default color
-    };
-    setShapes([...shapes, newShape]);
-  };
-
-  // Function to add a text annotation
-  const addTextAnnotation = () => {
-    const newText = {
-      content: 'Sample Text', // Default text
-      x: 100, // Default position
-      y: 100,
-      fontSize: 16,
-      color: 'red', // Default color
-    };
-    setTextAnnotations([...textAnnotations, newText]);
-  };
-
-  // Function to save the drawing
+  // Save Drawing to Database
   const saveDrawing = async () => {
-    const drawingData = JSON.parse(canvasRef.current.getSaveData()); // Get the serialized drawing data
-  
-    // Transform canvas drawing data into the format expected by the backend
+    const drawingData = JSON.parse(saveableCanvas.current.getSaveData()) // Get the serialized drawing data
+
+    // No need to transform points, we will store them directly
     const lines = drawingData.lines.map((line) => ({
-      x1: line.points[0].x,
-      y1: line.points[0].y,
-      x2: line.points[1].x,
-      y2: line.points[1].y,
-      color: 'black',
-      thickness: line.brushRadius,
+      points: line.points, // Array of points directly from canvas
+      color: line.brushColor,
+      brushRadius: line.brushRadius,
     }));
-  
+
     const drawing = {
-      title,
-      lines,          
-      shapes,         
-      textAnnotations, 
+      title, // You can replace this with actual title
+      lines
     };
-  
+
     try {
-      await axios.post('http://localhost:8000/api/newdraw', drawing);
-      alert('Drawing saved successfully!');
-      navigate('/');
+      await axios.post("http://localhost:8000/api/newdraw", drawing);
+      alert("Drawing saved successfully!");
+      navigate("/");
     } catch (error) {
-      console.error('Error saving the drawing:', error);
-      alert('Failed to save the drawing.');
+      console.error("Error saving the drawing:", error);
+      alert("Failed to save the drawing.");
     }
   };
-  
 
+  // Load Drawing from Database
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+      setHeight(window.innerHeight);
+    };
+  
+    window.addEventListener('resize', handleResize);
+  
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
   return (
     <div>
-      <h1>Drawing Board</h1>
-      
-      {/* Input to set the title of the drawing */}
+      <h1>React Canvas Draw with Database</h1>
+
       <input
         type="text"
         value={title}
@@ -81,45 +68,56 @@ const DrawingBoard = () => {
         placeholder="Enter drawing title"
       />
 
+      <div>
+        <button onClick={saveDrawing}>Save</button>
+        <button
+          onClick={() => {
+            saveableCanvas.current.eraseAll();
+          }}
+        >
+          Erase
+        </button>
+        <button
+          onClick={() => {
+            saveableCanvas.current.undo();
+          }}
+        >
+          Undo
+        </button>
+
+
+        <div>
+          <label>Brush-Radius:</label>
+          <input
+            type="number"
+            value={brushRadius}
+            onChange={(e) => setBrushRadius(parseInt(e.target.value, 10))}
+          />
+        </div>
+        <div>
+          <label>Lazy-Radius:</label>
+          <input
+            type="number"
+            value={lazyRadius}
+            onChange={(e) => setLazyRadius(parseInt(e.target.value, 10))}
+          />
+        </div>
+      </div>
+
       {/* CanvasDraw component */}
-      <CanvasDraw ref={canvasRef}   enablePanAndZoom
-          clampLinesToDocument
-          gridColor="#ccc" />
+      <CanvasDraw
+       ref={saveableCanvas}
+        brushColor='black'
+        brushRadius={brushRadius}
+        lazyRadius={lazyRadius}
+        canvasWidth={width}
+        canvasHeight={height}
+      />
 
-      {/* Buttons to add shapes */}
-      <div>
-        <button onClick={() => addShape('rectangle')}>Add Rectangle</button>
-        <button onClick={() => addShape('circle')}>Add Circle</button>
-      </div>
+  
 
-      {/* Button to add text annotation */}
-      <div>
-        <button onClick={addTextAnnotation}>Add Text Annotation</button>
-      </div>
-
-      {/* Save button */}
-      <button onClick={saveDrawing}>Save Drawing</button>
-
-      {/* Display the shapes and text annotations (for visualization purpose) */}
-      <div>
-        <h2>Shapes:</h2>
-        <ul>
-          {shapes.map((shape, index) => (
-            <li key={index}>
-              {shape.type} - {shape.color} at ({shape.startX}, {shape.startY})
-            </li>
-          ))}
-        </ul>
-
-        <h2>Text Annotations:</h2>
-        <ul>
-          {textAnnotations.map((text, index) => (
-            <li key={index}>
-              "{text.content}" at ({text.x}, {text.y}) - {text.fontSize}px, {text.color}
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Disabled canvas to load saved data */}
+     
     </div>
   );
 };

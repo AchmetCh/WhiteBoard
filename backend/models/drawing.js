@@ -1,37 +1,18 @@
 const mongoose = require('mongoose');
 
-const lineSchema = new mongoose.Schema({
-  x1: Number,
-  y1: Number,
-  x2: Number,
-  y2: Number,
-  color: String,
-  thickness: Number,
-});
-
-const shapeSchema = new mongoose.Schema({
-  type: { type: String, enum: ['rectangle', 'circle', 'triangle'] },
-  startX: Number,
-  startY: Number,
-  width: Number,
-  height: Number,
-  radius: Number,
-  color: String,
-});
-
-const textAnnotationSchema = new mongoose.Schema({
-  content: String,
+const pointSchema = new mongoose.Schema({
   x: Number,
   y: Number,
-  fontSize: Number,
+});
+const lineSchema = new mongoose.Schema({
+  points: [pointSchema],  // Array of points
   color: String,
+  brushRadius: Number,  // Renamed to match the terminology used in react-canvas-draw
 });
 
 const drawingSchema = new mongoose.Schema({
   title: String,
   lines: [lineSchema],
-  shapes: [shapeSchema],
-  textAnnotations: [textAnnotationSchema],
   createdAt: { type: Date, default: Date.now },
 });
 
