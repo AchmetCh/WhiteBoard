@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import CanvasDraw from "react-canvas-draw";
 import axios from "axios";
 import '../App.css'
+import api from './Api'
 
 const DrawingBoard = () => {
   const [color, setColor] = useState("#ffc600");
@@ -34,7 +35,7 @@ const DrawingBoard = () => {
     };
 
     try {
-      await axios.post("http://localhost:8000/api/newdraw", drawing);
+      await axios.post(`${api}/newdraw`, drawing);
       alert("Drawing saved successfully!");
       navigate("/");
     } catch (error) {
@@ -84,7 +85,7 @@ const DrawingBoard = () => {
         >
           Undo
         </button>
-
+        <button onClick={e => navigate('/')} style={{width:'100px', marginTop: '10px'}}>Back</button>
 
         <div>
           <label>Brush-Radius:</label>

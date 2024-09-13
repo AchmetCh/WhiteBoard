@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import CanvasDraw from 'react-canvas-draw';
+import api from './Api'
 
 const UpdateDrawing = () => {
   const { id } = useParams();
@@ -11,7 +12,7 @@ const UpdateDrawing = () => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/api/getdrawing/${id}`)
+    axios.get(`${api}/getdrawing/${id}`)
       .then((response) => {
         const data = response.data;
         setDrawing(data);
@@ -44,7 +45,7 @@ const UpdateDrawing = () => {
       const updatedData = {   
         lines: canvasRef.current ? JSON.parse(canvasRef.current.getSaveData()).lines : [],
       };
-      await axios.put(`http://localhost:8000/api/updatedrawing/${id}`, updatedData);
+      await axios.put(`${api}/updatedrawing/${id}`, updatedData);
       alert('Drawing updated successfully!');
       navigate('/');
     } catch (error) {
@@ -60,8 +61,8 @@ const UpdateDrawing = () => {
       <h1>Update Drawing</h1>
 
       {/* Render shape and text annotation inputs here */}
-
-      <button onClick={updateDrawing} style={{width:'200px'}}>Update Drawing</button>
+     
+      <button onClick={e => navigate('/')} style={{width:'200px', marginTop: '10px'}}>Back</button>
       <label>Brush-Radius:</label>
       <div>
           <input
@@ -70,6 +71,8 @@ const UpdateDrawing = () => {
             onChange={(e) => setBrushRadius(parseInt(e.target.value, 10))}
           />
         </div>
+        <button onClick={updateDrawing} style={{width:'200px', marginTop:'10px'}}>Update Drawing</button>
+      
       <div >
       <CanvasDraw ref={canvasRef}   brushRadius={brushRadius}  canvasWidth={window.innerWidth} canvasHeight={window.innerWidth} />
       </div>

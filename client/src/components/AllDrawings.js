@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import api from './Api'
 
 const AllDrawings = () => {
   const [drawings, setDrawings] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/getall')
+    axios.get(`${api}/getall`)
       .then(response => setDrawings(response.data))
       .catch(error => console.error('Error fetching drawings:', error));
   }, []);
 
   const deleteDrawing = async(id) => {
     try {
-        await axios.delete(`http://localhost:8000/api/deletedrawing/${id}`);
+        await axios.delete(`${api}/deletedrawing/${id}`);
         setDrawings(drawings.filter(drawing => drawing._id !== id));
     } catch (error) {
         console.error('Error deleting drawing:', error);
@@ -23,7 +24,7 @@ const AllDrawings = () => {
   return (
     <div>
       <h1>All Drawings</h1>
-      <button><Link to="/draw">Create New Drawing</Link></button>
+      <button style={{backgroundColor:'lightgrey'}}><Link to="/draw" style={{textDecoration:'none', fontSize:'16px', color:'black', fontWeight:'bold'}}>Create New Drawing</Link></button>
       <div style={{display:'flex'}}>
 
       {drawings.map(drawing => (

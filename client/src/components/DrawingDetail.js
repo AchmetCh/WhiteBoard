@@ -1,15 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import CanvasDraw from 'react-canvas-draw';
+import api from './Api'
 
 const DrawingDetail = () => {
   const { id } = useParams(); // Getting the drawing ID from URL
   const [drawing, setDrawing] = useState(null);
   const canvasRef = useRef(null);
 
+  const navigate = useNavigate()
   useEffect(() => {
-    axios.get(`http://localhost:8000/api/getdrawing/${id}`)
+    axios.get(`${api}/getdrawing/${id}`)
       .then(response => {
         setDrawing(response.data); // Set drawing data from the response
       })
@@ -39,6 +41,7 @@ const DrawingDetail = () => {
   return (
     <div>
       <h1>{drawing.title}</h1>
+      <button onClick={e => navigate('/')}>Back</button>
       <div>
         <CanvasDraw ref={canvasRef}  canvasWidth={window.innerWidth} canvasHeight={window.innerWidth} />
       </div>
