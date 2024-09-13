@@ -19,45 +19,38 @@ const DrawingBoard = () => {
   const navigate = useNavigate();
 
   // Save Drawing to Database
-  const saveDrawing = async () => {
-    const drawingData = JSON.parse(saveableCanvas.current.getSaveData()) // Get the serialized drawing data
-
-    // No need to transform points, we will store them directly
-    const lines = drawingData.lines.map((line) => ({
-      points: line.points, // Array of points directly from canvas
-      color: line.brushColor,
-      brushRadius: line.brushRadius,
-    }));
-
-    const drawing = {
-      title, // You can replace this with actual title
-      lines
-    };
-
-    try {
-      await axios.post(`${api}/newdraw`, drawing);
-      alert("Drawing saved successfully!");
-      navigate("/");
-    } catch (error) {
-      console.error("Error saving the drawing:", error);
-      alert("Failed to save the drawing.");
+  const saveDrawing = async (e) => {
+    e.preventDefault();
+    if (title.length < 1) {
+      alert("Please enter a title for your drawing.");
+      return
     }
+
+      const drawingData = JSON.parse(saveableCanvas.current.getSaveData()) // Get the serialized drawing data
+      
+      // No need to transform points, we will store them directly
+      const lines = drawingData.lines.map((line) => ({
+        points: line.points, // Array of points directly from canvas
+        color: line.brushColor,
+        brushRadius: line.brushRadius,
+      }));
+      
+      const drawing = {
+        title, // You can replace this with actual title
+        lines
+      };
+      
+      try {
+        await axios.post(`${api}/newdraw`, drawing);
+        alert("Drawing saved successfully!");
+        navigate("/");
+      } catch (error) {
+        console.error("Error saving the drawing:", error);
+        alert("Failed to save the drawing.");
+      }
+    
   };
 
-  // Load Drawing from Database
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWidth(window.innerWidth);
-      setHeight(window.innerHeight);
-    };
-  
-    window.addEventListener('resize', handleResize);
-  
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
   return (
     <div>
       <h1>React Canvas Draw with Database</h1>
