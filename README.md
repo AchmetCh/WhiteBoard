@@ -1,1 +1,1 @@
-Whiteboard Apps
+Whiteboard App
